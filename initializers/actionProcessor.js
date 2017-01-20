@@ -169,7 +169,7 @@ module.exports = {
       async.series(processors, callback)
     }
 
-    api.actionProcessor.prototype.reduceParams = function(){
+    api.ActionProcessor.prototype.reduceParams = function(){
       var self = this;
 
       var inputNames = [];
