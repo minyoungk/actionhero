@@ -169,16 +169,44 @@ module.exports = {
       async.series(processors, callback)
     }
 
-    api.ActionProcessor.prototype.reduceParams = function () {
-      let inputNames = []
-      if (this.actionTemplate.inputs) {
-        inputNames = Object.keys(this.actionTemplate.inputs)
+    api.actionProcessor.prototype.reduceParams = function(){
+      var self = this;
+
+      var inputNames = [];
+      if(self.actionTemplate.inputs){
+        inputNames = Object.keys(self.actionTemplate.inputs);
       }
 
-      if (api.config.general.disableParamScrubbing !== true) {
-        for (let p in this.params) {
-          if (api.params.globalSafeParams.indexOf(p) < 0 && inputNames.indexOf(p) < 0) {
-            delete this.params[p]
+      // inputs * 확인 2017-01-20 Eddy
+      var multi = [];
+      var strArray;
+
+      for(var v in inputNames){
+        if(inputNames[v].indexOf("*") != -1){
+          strArray = inputNames[v].split('*');
+          multi.push(strArray[0]);
+        }
+      }
+
+      var multiLength = multi.length;
+      var flag;
+
+      if(api.config.general.disableParamScrubbing !== true){
+        for(var p in self.params){
+          flag = true;
+
+          if(multiLength > 0){
+            for(var i=0; i<multiLength; i++){
+              if(p.indexOf(multi[i]) != -1){
+                flag = false;
+              }
+            }
+          }
+
+          if(flag){
+            if(api.params.globalSafeParams.indexOf(p) < 0 && inputNames.indexOf(p) < 0){
+              delete self.params[p];
+            }
           }
         }
       }
